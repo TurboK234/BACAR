@@ -911,7 +911,7 @@ Loop, %dir_rec%\*.%extension_rec%
 		{
 			source_crea_age = %current_date%										; to avoid confusion on the next line, copy current_date to a variable that will eventually only show the difference of dates (in days).
 			EnvSub, source_crea_age, %crea_date_current_file%, Days
-			If (source_crea_age <= days_before_conversion)
+			If (source_crea_age <= days_keepold)
 			{
 			FileAppend, % A_DD "/" A_MM "/" A_YYYY " " A_Hour ":" A_Min ":" A_Sec " : File " A_LoopFileName " (" source_crea_age " day(s) since created) is newer than days_keepold defines, skipping the file. `n", %dir_rec%\conversionlog-%current_year%.txt
 			continue
