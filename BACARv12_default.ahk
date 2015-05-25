@@ -47,6 +47,9 @@ global_filename_ifnot := ""											; Sets a single string to look for in each
 global_ffprobereport_iff := ""										; Sets a single string to look for in ffprobe's report for each processed file, and process only those files. (Logical iff)
 global_ffprobereport_ifnot := ""									; Sets a single string to look for in ffprobe's report for each processed file, and skip over those files. (Logical if not)
 
+; INITIAL SETUP VALIDATION
+GoSub, init_zero											; This subscript mainly checks, if the %dir_rec% is a valid location, as logging of any kind and the script function requires this. Gives a huge error and exits if not found.
+
 ; INITIAL QUERY TO EXECUTE THE SCRIPT OR NOT (CAN BE EASILY DISABLED BY ADDING A SEMICOLON (;) IN FRONT OF THE LINE BELOW)
 GoSub, query_runscript												; Confirm the execution of the script with OK/Cancel (and 10 sec timeout defaulting to OK). Suitable especially for scheduled execution.
 
@@ -980,6 +983,34 @@ End_2:
 ; not intended to exit the script, they should either return to main script
 ; (with "return") or direct to the end of the main script (End_2: subscript logs
 ; the end and exits the script).
+
+init_zero:
+{
+	If (%dir_rec% = "")
+	{
+		MsgBox, 0, SETUP ERROR,
+		(LTrim
+			The script fails to run as dir_rec (the location
+			of the source files) is not a valid location,
+			and even logging will fail. Thus you will only see
+			this error and then the script exits.
+		)
+		ExitApp			; Unconditional exit.
+	}
+	IfNotExist, %dir_rec%
+	{
+		MsgBox, 0, SETUP ERROR,
+		(LTrim
+			The script fails to run as dir_rec (the location
+			of the source files) is not a valid location,
+			and even logging will fail. Thus you will only see
+			this error and then the script exits.
+		)
+		ExitApp			; Unconditional exit.
+	}
+	return
+}
+
 
 query_runscript:
 {
