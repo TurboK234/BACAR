@@ -1,4 +1,4 @@
-; BACAR v1.2 - Bloated AutoHotkey Conversion Assistant for Recordings
+; BACAR v1.2.2 - Bloated AutoHotkey Conversion Assistant for Recordings
 ; Copyright (c) 2015 Henrik Söderström
 ; This script is published under Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0) licence.
 ; You are free to use the script as you please, even commercially, but you should publish the edited code
