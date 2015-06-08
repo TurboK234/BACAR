@@ -37,6 +37,7 @@ global_codec_encoder_subtitle := ""									; Parameter that is passed to ffmpeg
 global_ffmpeg_extraparameters_before_output := ""					; Parameters that are passed to ffmpeg as written (inside double quotes), placed after stream mappings and before output file.
 global_ffmpeg_extraparameters_after_output := ""					; Parameters that are passed to ffmpeg as written (inside double quotes), placed after output file.
 keep_source_time = yes												; Sets the source file (creation time) to target file if "yes".
+write_filename_as_title = no											; Writes the filename (without the extension) as <title> metadata in the .nfo file.
 write_time_to_plot = no												; A special (script creator's preferred) engine, that writes the file creation time (not reliable for copied files) to .xml "plot", before the searched plot metadata, even if "plot" metadata is not searched for.
 write_channel_to_plot = no											; A special (script creator's preferred) engine, that writes the channel name (only tested with Finnish cable tv's .wtv-files) to .xml "plot", before the searched plot metadata, even if "plot" metadata is not searched for.
 channel_fingerprint := ""											; Used by write_channel_to_plot, this variable should include the string that appears ALWAYS and ONLY on the line that has the channel name in ffprobe's report (for example service_provider: )
@@ -324,6 +325,31 @@ Loop, %dir_rec%\*.%extension_rec%
 	metadata_appended = 0
 	plot_open = 0
 	plot_closed = 0
+	
+	If (write_filename_as_title = "yes")
+	{
+		StringReplace, filenamebody_edited, filenamebody_source, &, &amp;, 1
+		StringReplace, filenamebody_edited, filenamebody_edited, ", &quot;, 1
+		StringReplace, filenamebody_edited, filenamebody_edited, ', &apos;, 1
+		StringReplace, filenamebody_edited, filenamebody_edited, <, &lt;, 1
+		StringReplace, filenamebody_source_xml, filenamebody_edited, >, &gt;, 1
+		
+		If (metadata_appended < 1)
+		{
+			FileAppend, <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>`r`n, %dir_temp%\metadata.xml
+			FileAppend, <movie>`r`n, %dir_temp%\metadata.xml
+			FileAppend, % A_Space A_Space A_Space A_Space "<title>" filenamebody_source_xml "</title>`r`n", %dir_temp%\metadata.xml
+			FileAppend, % A_DD "/" A_MM "/" A_YYYY " " A_Hour ":" A_Min ":" A_Sec " : Filename body added as title metadata. `n", %dir_rec%\conversionlog-%current_year%.txt
+			metadata_appended += 1
+		}
+		else
+		{
+			FileAppend, % A_Space A_Space A_Space A_Space "<title>" filenamebody_source_xml "</title>`r`n", %dir_temp%\metadata.xml
+			FileAppend, % A_DD "/" A_MM "/" A_YYYY " " A_Hour ":" A_Min ":" A_Sec " : Filename body added as title metadata. `n", %dir_rec%\conversionlog-%current_year%.txt
+			metadata_appended += 1
+		}
+	}
+	
 	While, (A_Index <= metadata_rulecount)
 	{
 		current_metadata_found = 0
