@@ -1,0 +1,50 @@
+09/06/2015 02:30:13 : Initiating script. 
+09/06/2015 02:30:13 : Prerequisites were met, proceeding. 
+09/06/2015 02:30:13 : File Good Wife_Liv_2015_06_08_20_58_00.wtv found, checking and processing... 
+09/06/2015 02:30:14 : Starting metadata to .nfo (xml) engine. 
+09/06/2015 02:30:15 : Filename body added as title metadata. 
+09/06/2015 02:30:15 : Based on one search criteria (index 1), following metadata was extracted >Good Wife< . 
+09/06/2015 02:30:15 : Metadata with index 2 was not found. 
+09/06/2015 02:30:15 : Based on one search criteria (index 3), following metadata was extracted >0< . 
+09/06/2015 02:30:15 : Based on one search criteria (index 4), following metadata was extracted >;;;< . 
+09/06/2015 02:30:16 : Based on one search criteria (index 5), following metadata was extracted >Kausi 6. Jakso 17/22. Kiusallisia viestejä. Alicia huomaa vaalien jälkeen, ettei voittajan elämä ole pelkkää ruusuilla tanssimista. < . 
+09/06/2015 02:30:16 : Source creation time added to plot metadata. 
+09/06/2015 02:30:16 : Channel name was found: >Liv< . 
+09/06/2015 02:30:16 : Channel name added to plot metadata. 
+09/06/2015 02:30:21 : Metadata written (filename.nfo) to target folder. 
+09/06/2015 02:30:21 : Starting stream mapping engine. 
+09/06/2015 02:30:21 : Stream search (index 1) specific rule (based on FFprobe's report) was not met, skipping the rule. 
+09/06/2015 02:30:21 : Stream search (index 2) specific rule (based on FFprobe's report) was not met, skipping the rule. 
+09/06/2015 02:30:21 : Stream search (index 3) specific rule (based on FFprobe's report) was not met, skipping the rule. 
+09/06/2015 02:30:21 : Stream with search index 4 was not found. 
+09/06/2015 02:30:21 : Stream with search index 5 was not found. 
+09/06/2015 02:30:21 : Stream with search index 6 was not found. 
+09/06/2015 02:30:21 : Initiating conversion, command: "C:\Utilities\ffmpeg_active\bin\ffmpeg.exe"  -i "R:\Recorded TV\Good Wife_Liv_2015_06_08_20_58_00.wtv" -map 0:v -map 0:a  -vf yadif=0 -codec:v libx264 -threads 3 -codec:a libmp3lame -codec:s copy "T:\Rec_mkv\Good Wife_Liv_2015_06_08_20_58_00.mkv" 
+09/06/2015 02:43:52 : Source file creation timestamp written to target file. 
+09/06/2015 02:43:53 : Success, File converted succesfully and renamed to filename_CONVERTED.ext . 
+09/06/2015 02:43:53 : File Kosto_AVA_2015_06_07_23_15_07.wtv found, checking and processing... 
+09/06/2015 02:43:54 : Starting metadata to .nfo (xml) engine. 
+09/06/2015 02:43:54 : Filename body added as title metadata. 
+09/06/2015 02:43:54 : Based on one search criteria (index 1), following metadata was extracted >Kosto< . 
+09/06/2015 02:43:55 : Metadata with index 2 was not found. 
+09/06/2015 02:43:55 : Based on one search criteria (index 3), following metadata was extracted >0< . 
+09/06/2015 02:43:55 : Based on one search criteria (index 4), following metadata was extracted >;;;< . 
+09/06/2015 02:43:55 : Based on one search criteria (index 5), following metadata was extracted >Jälkimainingit. Epäuskoinen Emily ryntää Graysonin kartanon savuaville raunioille, joista löytyy ruumis. < . 
+09/06/2015 02:43:55 : Source creation time added to plot metadata. 
+09/06/2015 02:43:55 : Channel name was found: >AVA< . 
+09/06/2015 02:43:55 : Channel name added to plot metadata. 
+09/06/2015 02:43:56 : Metadata written (filename.nfo) to target folder. 
+09/06/2015 02:43:56 : Starting stream mapping engine. 
+09/06/2015 02:43:56 : Stream search (index 1) specific rule (based on FFprobe's report) was not met, skipping the rule. 
+09/06/2015 02:43:56 : Stream search (index 2) specific rule (based on FFprobe's report) was not met, skipping the rule. 
+09/06/2015 02:43:56 : Stream search (index 3) specific rule (based on FFprobe's report) was met, proceeding. 
+09/06/2015 02:43:56 : Based on two search criteria (index 3), following stream number was extracted >0< . 
+09/06/2015 02:43:56 : Stream with search index 4 was not found. 
+09/06/2015 02:43:56 : Stream with search index 5 was not found. 
+09/06/2015 02:43:57 : Stream with search index 6 was not found. 
+09/06/2015 02:43:57 : Initiating conversion, command: "C:\Utilities\ffmpeg_active\bin\ffmpeg.exe"  -i "R:\Recorded TV\Kosto_AVA_2015_06_07_23_15_07.wtv" -map 0:v -map 0:a -map 0:0 -vf yadif=0 -codec:v libx264 -threads 3 -codec:a libmp3lame -codec:s copy "T:\Rec_mkv\Kosto_AVA_2015_06_07_23_15_07.mkv" 
+09/06/2015 02:57:49 : Source file creation timestamp written to target file. 
+09/06/2015 02:57:49 : Success, File converted succesfully and renamed to filename_CONVERTED.ext . 
+09/06/2015 02:57:49 : Starting organizer. 
+09/06/2015 02:57:49 : File Richard Scarry- Touhulan arvoituksia (S)_YLE TV2_2015_05_09_08_08_14_CONVERTED.wtv (31 day(s) since created) is older than days_keepold defines, deleting the file. 
+09/06/2015 02:57:49 : End of the script. 
