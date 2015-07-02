@@ -1,4 +1,4 @@
-; BACAR v1.2.3 - Bloated AutoHotkey Conversion Assistant for Recordings
+; BACAR v1.2.4 - Bloated AutoHotkey Conversion Assistant for Recordings
 ; (custom version for production, last edit 070615)
 ; Copyright (c) 2015 Henrik Söderström
 ; This script is published under Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0) licence.
@@ -16,9 +16,9 @@ StringCaseSense, On													; Turns on case-sensitivity, which helps to crea
 current_year = %A_YYYY%												; Used by conversionlog-YEAR.txt, so that the whole script will log to the same file, even if the year changed during the conversion.
 
 ; GENERAL CONVERSION PREFERENCES (USER CONFIRMATION REQUIRED). DO NOT REMOVE THE 2x DOUBLE QUOTES, FILL THE VALUE BETWEEN THEM, USE "" FOR EMPTY.
-dir_ffmpeg := "C:\Util\ffmpeg\bin"													; The complete path (without the last "\") of both ffmpeg.exe and ffprobe.exe .
-dir_rec := "C:\Recorded TV"														; The complete path (without the last "\") of the video files to be converted.
-dir_target := "C:\Converted_Rec"													; The complete path (without the last "\") of the new converted files and their metadata .nfo -file. This needs to pre-exist, the script will not create it.
+dir_ffmpeg := "C:\Utilities\ffmpeg_active\bin"													; The complete path (without the last "\") of both ffmpeg.exe and ffprobe.exe .
+dir_rec := "R:\Recorded TV"														; The complete path (without the last "\") of the video files to be converted.
+dir_target := "T:\Rec_mkv"													; The complete path (without the last "\") of the new converted files and their metadata .nfo -file. This needs to pre-exist, the script will not create it.
 extension_rec := "wtv"													; The extension of the original files. Don't use wildcards, as file name body is evaluated based on length of this string.
 extension_target := "mkv"												; The extension of the target files (without the period).
 days_before_conversion = 1											; # of days before the file is processed. This option looks at the source file's modification time, and considers only dates and rounds up (i.e. file modified yesterday -> value = 1). Use 0 to convert files regardless of their age. This is a safety measure for automated setups, not to convert files that are currently being written / recorded. As such, "1" is usually a good number.
@@ -42,6 +42,8 @@ write_filename_as_title = yes										; Writes the filename (without the extens
 write_time_to_plot = yes												; A special (script creator's preferred) engine, that writes the file creation time (not reliable for copied files) to .xml "plot", before the searched plot metadata, even if "plot" metadata is not searched for.
 write_channel_to_plot = yes											; A special (script creator's preferred) engine, that writes the channel name (only tested with Finnish cable tv's .wtv-files) to .xml "plot", before the searched plot metadata, even if "plot" metadata is not searched for.
 channel_fingerprint := "service_provider:"											; Used by write_channel_to_plot, this variable should include the string that appears ALWAYS and ONLY on the line that has the channel name in ffprobe's report (for example service_provider: )
+write_smalltitle_to_plot = yes										; A spedial (script creator's preferred) engine, that writes the smaller title ("sub title"), if present, to plot metadata.
+smalltitle_fingerprint := "WM/SubTitle     :"										; Used by write_smalltitle_to_plot, this variable should include the string that appears ALWAYS and ONLY on the line that has the smaller title in ffprobe's report (for example "WM/SubTitle     :" )
 
 ; FILE SPECIFIC CONVERSION INCLUSION/EXCLUSION RULES (OPTIONAL). DO NOT REMOVE THE 2x DOUBLE QUOTES, FILL THE VALUE BETWEEN THEM, USE "" FOR EMPTY.
 global_filename_iff := ""											; Sets a single string to look for in each processed filename, and process only those files. (Logical iff)
@@ -761,12 +763,80 @@ Loop, %dir_rec%\*.%extension_rec%
 					{
 						FileAppend, % A_Space A_Space A_Space A_Space "<" metadata_xml_header_metadata_%metadata_current_index% ">" current_channel_final " | ", %dir_temp%\metadata.xml
 						FileAppend, % A_DD "/" A_MM "/" A_YYYY " " A_Hour ":" A_Min ":" A_Sec " : Channel name added to plot metadata. `n", %dir_rec%\conversionlog-%current_year%.txt
+						plot_open = 1
 					}
 					else
 					{
 						FileAppend, % current_channel_final " | ", %dir_temp%\metadata.xml
 						FileAppend, % A_DD "/" A_MM "/" A_YYYY " " A_Hour ":" A_Min ":" A_Sec " : Channel name added to plot metadata. `n", %dir_rec%\conversionlog-%current_year%.txt
 					}
+				}	
+			}
+			If (write_smalltitle_to_plot = "yes")
+			{
+				Loop, Read, %dir_temp%\ffprobereport.log
+				{
+					IfInString, A_LoopReadLine, %smalltitle_fingerprint%
+					{
+						If (smalltitle_found < 1)
+						{						
+							smalltitle_found += 1
+							StringGetPos, smalltitle_colon_pos_left, A_LoopReadLine, :, L1
+							StringTrimLeft, current_smalltitle_raw, A_LoopReadLine, (smalltitle_colon_pos_left + 2)
+							StringReplace, current_smalltitle_edited, current_smalltitle_raw, &, &amp;, 1
+							StringReplace, current_smalltitle_edited, current_smalltitle_edited, ", &quot;, 1
+							StringReplace, current_smalltitle_edited, current_smalltitle_edited, ', &apos;, 1
+							StringReplace, current_smalltitle_edited, current_smalltitle_edited, <, &lt;, 1
+							StringReplace, current_smalltitle_final, current_smalltitle_edited, >, &gt;, 1
+							If (current_smalltitle_final <> "")
+							{
+								FileAppend, % A_DD "/" A_MM "/" A_YYYY " " A_Hour ":" A_Min ":" A_Sec " : Small title was found: >" current_smalltitle_final "< . `n", %dir_rec%\conversionlog-%current_year%.txt
+							}
+							else
+							{
+								FileAppend, % A_DD "/" A_MM "/" A_YYYY " " A_Hour ":" A_Min ":" A_Sec " : Small title line was found but contains no data. `n", %dir_rec%\conversionlog-%current_year%.txt
+								smalltitle_found -= 1
+							}
+						}
+						else
+						{
+							FileAppend, % A_DD "/" A_MM "/" A_YYYY " " A_Hour ":" A_Min ":" A_Sec " : Small title already found with provided criteria (smalltitle_fingerprint = " smalltitle_fingerprint "). Using the first found channel, but please refine your search rule. `n", %dir_rec%\conversionlog-%current_year%.txt
+						}
+					}
+					else
+					{
+						continue		; If the smalltitle_fingerprint is not found on the line, skip to the next line.
+					}
+				}
+				If (smalltitle_found >= 1)
+				{
+					If (metadata_appended < 1)
+					{
+						FileAppend, <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>`r`n, %dir_temp%\metadata.xml
+						FileAppend, <movie>`r`n, %dir_temp%\metadata.xml
+						FileAppend, % A_Space A_Space A_Space A_Space "<" metadata_xml_header_metadata_%metadata_current_index% ">" current_smalltitle_final " | ", %dir_temp%\metadata.xml
+						FileAppend, % A_DD "/" A_MM "/" A_YYYY " " A_Hour ":" A_Min ":" A_Sec " : Small title added to plot metadata. `n", %dir_rec%\conversionlog-%current_year%.txt
+						metadata_appended += 1
+						plot_open = 1
+					}
+					else
+					{
+						If (plot_open < 1)
+						{
+							FileAppend, % A_Space A_Space A_Space A_Space "<" metadata_xml_header_metadata_%metadata_current_index% ">" current_smalltitle_final " | ", %dir_temp%\metadata.xml
+							FileAppend, % A_DD "/" A_MM "/" A_YYYY " " A_Hour ":" A_Min ":" A_Sec " : Small title added to plot metadata. `n", %dir_rec%\conversionlog-%current_year%.txt
+							plot_open = 1
+						}
+						else
+						{
+							FileAppend, % current_smalltitle_final " | ", %dir_temp%\metadata.xml
+							FileAppend, % A_DD "/" A_MM "/" A_YYYY " " A_Hour ":" A_Min ":" A_Sec " : Small title added to plot metadata. `n", %dir_rec%\conversionlog-%current_year%.txt
+						}
+					}
+				}
+				else
+				{
+					FileAppend, % A_DD "/" A_MM "/" A_YYYY " " A_Hour ":" A_Min ":" A_Sec " : Small title could not be retrieved, and nothing will be added to metadata.nfo. `n", %dir_rec%\conversionlog-%current_year%.txt	
 				}	
 			}
 			If (plot_open = 1)
@@ -842,7 +912,7 @@ Loop, %dir_rec%\*.%extension_rec%
 	}
 	If (write_channel_to_plot = "yes" && plot_closed < 1)	; In case plot was not searched (or found) according to user set rules, this will still write channel to plot metadata.
 	{
-	channel_found = 0
+		channel_found = 0
 		Loop, Read, %dir_temp%\ffprobereport.log
 		{
 			IfInString, A_LoopReadLine, %channel_fingerprint%
@@ -898,6 +968,66 @@ Loop, %dir_rec%\*.%extension_rec%
 			}
 		}	
 	}
+	If (write_smalltitle_to_plot = "yes" && plot_closed < 1)	; In case plot was not searched (or found) according to user set rules, this will still write small title to plot metadata.
+	{
+		smalltitle_found = 0
+		Loop, Read, %dir_temp%\ffprobereport.log
+		{
+			IfInString, A_LoopReadLine, %smalltitle_fingerprint%
+			{
+				If (smalltitle_found < 1)
+				{						
+					smalltitle_found += 1
+					StringGetPos, smalltitle_colon_pos_left, A_LoopReadLine, :, L1
+					StringTrimLeft, current_smalltitle_raw, A_LoopReadLine, (smalltitle_colon_pos_left + 2)
+					StringReplace, current_smalltitle_edited, current_smalltitle_raw, &, &amp;, 1
+					StringReplace, current_smalltitle_edited, current_smalltitle_edited, ", &quot;, 1
+					StringReplace, current_smalltitle_edited, current_smalltitle_edited, ', &apos;, 1
+					StringReplace, current_smalltitle_edited, current_smalltitle_edited, <, &lt;, 1
+					StringReplace, current_smalltitle_final, current_smalltitle_edited, >, &gt;, 1						
+					FileAppend, % A_DD "/" A_MM "/" A_YYYY " " A_Hour ":" A_Min ":" A_Sec " : Small title was found: >" current_smalltitle_final "< . `n", %dir_rec%\conversionlog-%current_year%.txt
+				}
+				else
+				{
+					FileAppend, % A_DD "/" A_MM "/" A_YYYY " " A_Hour ":" A_Min ":" A_Sec " : Small title already found with provided criteria (smalltitle_fingerprint = " smalltitle_fingerprint "). Using the first found channel, but please refine your search rule. `n", %dir_rec%\conversionlog-%current_year%.txt
+				}
+			}
+			else
+			{
+				continue		; If the smalltitle_fingerprint is not found on the line, skip to the next line.
+			}
+		}
+		If (smalltitle_found >= 1)
+		{
+			If (metadata_appended < 1)
+			{
+				FileAppend, <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>`r`n, %dir_temp%\metadata.xml
+				FileAppend, <movie>`r`n, %dir_temp%\metadata.xml
+				FileAppend, % A_Space A_Space A_Space A_Space "<" metadata_xml_header_metadata_%metadata_current_index% ">" current_smalltitle_final " | ", %dir_temp%\metadata.xml
+				FileAppend, % A_DD "/" A_MM "/" A_YYYY " " A_Hour ":" A_Min ":" A_Sec " : Small title added to plot metadata. `n", %dir_rec%\conversionlog-%current_year%.txt
+				metadata_appended += 1
+				plot_open = 1
+			}
+			else
+			{
+				If (plot_open < 1)
+				{
+					FileAppend, % A_Space A_Space A_Space A_Space "<" metadata_xml_header_metadata_%metadata_current_index% ">" current_smalltitle_final " | ", %dir_temp%\metadata.xml
+					FileAppend, % A_DD "/" A_MM "/" A_YYYY " " A_Hour ":" A_Min ":" A_Sec " : Small title added to plot metadata. `n", %dir_rec%\conversionlog-%current_year%.txt
+					plot_open = 1
+				}
+				else
+				{
+					FileAppend, % current_smalltitle_final " | ", %dir_temp%\metadata.xml
+					FileAppend, % A_DD "/" A_MM "/" A_YYYY " " A_Hour ":" A_Min ":" A_Sec " : Small title added to plot metadata. `n", %dir_rec%\conversionlog-%current_year%.txt
+				}
+			}
+		}
+		else
+		{
+				FileAppend, % A_DD "/" A_MM "/" A_YYYY " " A_Hour ":" A_Min ":" A_Sec " : Small title could not be retrieved, and nothing will be added to metadata.nfo. `n", %dir_rec%\conversionlog-%current_year%.txt	
+		}
+	}	
 	If (plot_open >= 1)
 	{
 		FileAppend, % "</plot>`r`n", %dir_temp%\metadata.xml
@@ -1154,6 +1284,7 @@ Loop, %dir_rec%\*.%extension_rec%
 		ffprobereport =
 		metadata_appended =
 		channel_found =
+		smalltitle_found =
 		current_stream_found =
 		RunWait, %comspec% /c del /Q "%dir_rec%\*.log"
 		RunWait, %comspec% /c del /Q "%dir_temp%\*.log"
