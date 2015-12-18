@@ -41,7 +41,7 @@ write_filename_as_title = no										; Writes the filename (without the extensi
 write_time_to_plot = no												; A special (script creator's preferred) engine, that writes the file creation time (not reliable for copied files) to .xml "plot", before the searched plot metadata, even if "plot" metadata is not searched for.
 write_channel_to_plot = no											; A special (script creator's preferred) engine, that writes the channel name (only tested with Finnish cable tv's .wtv-files) to .xml "plot", before the searched plot metadata, even if "plot" metadata is not searched for.
 channel_fingerprint := ""											; Used by write_channel_to_plot, this variable should include the string that appears ALWAYS and ONLY on the line that has the channel name in ffprobe's report (for example "service_provider:" )
-write_smalltitle_to_plot = no										; A spedial (script creator's preferred) engine, that writes the smaller title ("sub title"), if present, to plot metadata.
+write_smalltitle_to_plot = no										; A special (script creator's preferred) engine, that writes the smaller title ("sub title"), if present, to plot metadata.
 smalltitle_fingerprint := ""										; Used by write_smalltitle_to_plot, this variable should include the string that appears ALWAYS and ONLY on the line that has the smaller title in ffprobe's report (for example "WM/SubTitle     :" )
 
 ; FILE SPECIFIC CONVERSION INCLUSION/EXCLUSION RULES (OPTIONAL). DO NOT REMOVE THE 2x DOUBLE QUOTES, FILL THE VALUE BETWEEN THEM, USE "" FOR EMPTY.
