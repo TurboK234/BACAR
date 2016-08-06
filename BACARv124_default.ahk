@@ -1223,7 +1223,7 @@ End_2:
 
 init_zero:
 {
-	If (%dir_rec% = "")
+	If (dir_rec = "")
 	{
 		MsgBox, 0, SETUP ERROR,
 		(LTrim
